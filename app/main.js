@@ -10,7 +10,23 @@ console.log("Logs from your program will appear here!");
 
  udpSocket.on("message", (buf, rinfo) => {
    try {
-     const response = Buffer.from("");
+     const response = Buffer.alloc(12);
+
+     response.writeUInt16BE(0x04D2, 0);
+
+     response[2] |= 0b10000000;
+
+     response.writeUInt16BE(0x0000, 4);
+
+
+     response.writeUInt16BE(0x0000, 6);
+
+
+     response.writeUInt16BE(0x0000, 8);
+
+
+     response.writeUInt16BE(0x0000, 10);
+
      udpSocket.send(response, rinfo.port, rinfo.address);
    } catch (e) {
      console.log(`Error receiving data: ${e}`);
