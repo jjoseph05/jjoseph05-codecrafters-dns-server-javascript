@@ -30,8 +30,18 @@ udpSocket.on("message", (buf, rinfo) => {
      header.writeUInt16BE(0x04D2, 0);
 
      header[2] |= 0b10000000;
-     const questionBuffer = encodeDomainName('codecrafters.io');
+     const domainBuffer = encodeDomainName('codecrafters.io');
 
+     const questionBuffer = Buffer.alloc(domainBuffer.length + 4);
+     domainBuffer.copy(questionBuffer);
+
+     const typePosition = domainBuffer.length;
+     const classPosition = typePosition + 2;
+
+    // Set Type to 1 for "A" record (2 bytes)
+    questionBuffer.writeUInt16BE(1, typePosition);
+    // Set Class to 1 for "IN" (2 bytes)
+    questionBuffer.writeUInt16BE(1, classPosition);
      header.writeUInt16BE(0x0001, 4);
 
 
