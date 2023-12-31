@@ -36,11 +36,16 @@ function encodeIPAddress(ipAddress) {
 
 udpSocket.on("message", (buf, rinfo) => {
    try {
+     const id = buf.readUInt16BE(0);
+     const flags = buf.readUInt16BE(2);
      const header = Buffer.alloc(12);
 
      header.writeUInt16BE(0x04D2, 0);
 
      header[2] |= 0b10000000;
+
+     header.writeUInt16BE(id, 0); // Set the ID from the received packet
+     header.writeUInt16BE(flags | 0b1000000000000000, 2);
      const domainBuffer = encodeDomainName('codecrafters.io');
 
      const questionBuffer = Buffer.alloc(domainBuffer.length + 4);
