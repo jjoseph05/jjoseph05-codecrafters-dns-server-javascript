@@ -23,6 +23,17 @@ function encodeDomainName(domain) {
   return buffer;
 }
 
+function encodeIPAddress(ipAddress) {
+    const parts = ipAddress.split('.');
+    const buffer = Buffer.alloc(4);
+
+    parts.forEach((part, index) => {
+        buffer.writeUInt8(parseInt(part), index);
+    });
+
+    return buffer;
+}
+
 udpSocket.on("message", (buf, rinfo) => {
    try {
      const header = Buffer.alloc(12);
@@ -38,10 +49,29 @@ udpSocket.on("message", (buf, rinfo) => {
      const typePosition = domainBuffer.length;
      const classPosition = typePosition + 2;
 
-    // Set Type to 1 for "A" record (2 bytes)
-    questionBuffer.writeUInt16BE(1, typePosition);
-    // Set Class to 1 for "IN" (2 bytes)
-    questionBuffer.writeUInt16BE(1, classPosition);
+     // Set Type to 1 for "A" record (2 bytes)
+     questionBuffer.writeUInt16BE(1, typePosition);
+     // Set Class to 1 for "IN" (2 bytes)
+     questionBuffer.writeUInt16BE(1, classPosition);
+
+     // Constructing the answer section
+     const answerName = encodeDomainName('codecrafters.io');
+     const answerType = Buffer.alloc(2);
+     answerType.writeUInt16BE(1); // Type 1 for "A" record
+
+     const answerClass = Buffer.alloc(2);
+     answerClass.writeUInt16BE(1); // Class 1 for "IN"
+
+     const answerTTL = Buffer.alloc(4);
+     answerTTL.writeUInt32BE(60); // TTL value, set to 60
+
+     const answerLength = Buffer.alloc(2);
+     answerLength.writeUInt16BE(4); // Length of RDATA (4 bytes for IPv4 address)
+
+     const ipAddress = '8.8.8.8'; // Replace with any valid IP address
+     const answerData = encodeIPAddress(ipAddress); // Encoding IP address
+     const answer = Buffer.concat([answerName, answerType, answerClass, answerTTL, answerLength, answerData]);
+
      header.writeUInt16BE(0x0001, 4);
 
 
@@ -52,8 +82,9 @@ udpSocket.on("message", (buf, rinfo) => {
 
 
      header.writeUInt16BE(0x0000, 10);
-     const response = Buffer.concat([header, questionBuffer]);
-     udpSocket.send(response, rinfo.port, rinfo.address);
+     const dnsResponse = Buffer.concat([header, questionBuffer, answer]);
+
+     udpSocket.send(dnsResponse, rinfo.port, rinfo.address);
    } catch (e) {
      console.log(`Error receiving data: ${e}`);
    }
