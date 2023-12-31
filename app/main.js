@@ -48,7 +48,8 @@ udpSocket.on("message", (buf, rinfo) => {
      header.writeUInt16BE(id, 0); // Set the ID from the received packet
      header.writeUInt16BE(
        (1 << 15) | // QR = 1 for response
-       (opcode << 11), // Setting Opcode from received packet
+       (opcode << 11) | // Setting Opcode from received packet
+       (1 << 8),
        2
      );
      const domainBuffer = encodeDomainName('codecrafters.io');
