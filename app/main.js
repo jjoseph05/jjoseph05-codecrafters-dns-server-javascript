@@ -87,7 +87,7 @@ udpSocket.on("message", (buf, rinfo) => {
 
 
      header.writeUInt16BE(0x0000, 10);
-     header.writeUInt16BE(1, 6); 
+     header.writeUInt16BE(0, 6); 
      const dnsResponse = Buffer.concat([header, questionBuffer, answer]);
 
      udpSocket.send(dnsResponse, rinfo.port, rinfo.address);
