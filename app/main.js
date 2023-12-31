@@ -37,7 +37,7 @@ function encodeIPAddress(ipAddress) {
 udpSocket.on("message", (buf, rinfo) => {
    try {
      const id = buf.readUInt16BE(0);
-     const flags = buf.readUInt16BE(2);
+    //const flags = buf.readUInt16BE(2);
      const opcode = (flags >> 11) & 0b1111; // Extracting OPCODE
      const header = Buffer.alloc(12);
 
@@ -46,7 +46,11 @@ udpSocket.on("message", (buf, rinfo) => {
      header[2] |= 0b10000000;
 
      header.writeUInt16BE(id, 0); // Set the ID from the received packet
-     header.writeUInt16BE(flags | 0b1000000000000000, 2);
+     header.writeUInt16BE(
+       (1 << 15) | // QR = 1 for response
+       (opcode << 11), // Setting Opcode from received packet
+       2
+     );
      const domainBuffer = encodeDomainName('codecrafters.io');
 
      const questionBuffer = Buffer.alloc(domainBuffer.length + 4);
@@ -78,19 +82,21 @@ udpSocket.on("message", (buf, rinfo) => {
      const answerData = encodeIPAddress(ipAddress); // Encoding IP address
      const answer = Buffer.concat([answerName, answerType, answerClass, answerTTL, answerLength, answerData]);
 
-     header.writeUInt16BE(0x0001, 4);
+     //header.writeUInt16BE(0x0001, 4);
 
 
 //     header.writeUInt16BE(0x0000, 6);
    //  header.writeUInt16BE(opcode !== 0 ? 4 : 0, 6); // Setting RCODE based on OPCODE
-     header.writeUInt16BE(4 << 12, 6); // Set RCODE explicitly to 4
+    // header.writeUInt16BE(4 << 12, 6); // Set RCODE explicitly to 4
+     header.writeUInt16BE(1, 4); // ANCOUNT set to 1
+     header.writeUInt16BE(4, 6); // RCODE explicitly set to 4
 
 
      header.writeUInt16BE(0x0000, 8);
 
 
      header.writeUInt16BE(0x0000, 10);
-     header.writeUInt16BE(1, 6); 
+     //header.writeUInt16BE(1, 6); 
      const dnsResponse = Buffer.concat([header, questionBuffer, answer]);
 
      udpSocket.send(dnsResponse, rinfo.port, rinfo.address);
