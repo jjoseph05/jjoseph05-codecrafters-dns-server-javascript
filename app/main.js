@@ -37,7 +37,7 @@ function encodeIPAddress(ipAddress) {
 udpSocket.on("message", (buf, rinfo) => {
    try {
      const id = buf.readUInt16BE(0);
-    //const flags = buf.readUInt16BE(2);
+     const flags = buf.readUInt16BE(2);
      const opcode = (flags >> 11) & 0b1111; // Extracting OPCODE
      const header = Buffer.alloc(12);
 
