@@ -89,7 +89,7 @@ udpSocket.on("message", (buf, rinfo) => {
 
 
      header.writeUInt16BE(0x0000, 10);
-     header.writeUInt16BE(1, 6);
+    // header.writeUInt16BE(1, 6); //possibly interfering with header qr field, hmm
      header.writeUInt16BE(opcode << 11, 2); // Set Opcode in the response header
      const dnsResponse = Buffer.concat([header, questionBuffer, answer]);
 
