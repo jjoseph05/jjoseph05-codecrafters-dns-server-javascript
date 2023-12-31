@@ -72,10 +72,10 @@ udpSocket.on("message", (buf, rinfo) => {
      const answerData = encodeIPAddress(ipAddress); // Encoding IP address
      const answer = Buffer.concat([answerName, answerType, answerClass, answerTTL, answerLength, answerData]);
 
-    // header.writeUInt16BE(0x0001, 4);
+     header.writeUInt16BE(0x0001, 4);
 
 
-     header.writeUInt16BE(0x0001, 6);
+     header.writeUInt16BE(0x0000, 6);
 
 
      header.writeUInt16BE(0x0000, 8);
