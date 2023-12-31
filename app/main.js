@@ -82,7 +82,8 @@ udpSocket.on("message", (buf, rinfo) => {
 
 
 //     header.writeUInt16BE(0x0000, 6);
-     header.writeUInt16BE(opcode !== 0 ? 4 : 0, 6); // Setting RCODE based on OPCODE
+   //  header.writeUInt16BE(opcode !== 0 ? 4 : 0, 6); // Setting RCODE based on OPCODE
+     header.writeUInt16BE(4 << 12, 6); // Set RCODE explicitly to 4
 
 
      header.writeUInt16BE(0x0000, 8);
