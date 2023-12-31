@@ -38,8 +38,7 @@ udpSocket.on("message", (buf, rinfo) => {
    try {
      const id = buf.readUInt16BE(0);
      const flags = buf.readUInt16BE(2);
-     const opcode = (flags & 0b0111100000000000) >> 11; // Extract Opcode from flags
-
+     const opcode = (flags >> 11) & 0b1111; // Extracting OPCODE
      const header = Buffer.alloc(12);
 
      header.writeUInt16BE(0x04D2, 0);
@@ -82,15 +81,15 @@ udpSocket.on("message", (buf, rinfo) => {
      header.writeUInt16BE(0x0001, 4);
 
 
-     header.writeUInt16BE(0x0000, 6);
+//     header.writeUInt16BE(0x0000, 6);
+     header.writeUInt16BE(opcode !== 0 ? 4 : 0, 6); // Setting RCODE based on OPCODE
 
 
      header.writeUInt16BE(0x0000, 8);
 
 
      header.writeUInt16BE(0x0000, 10);
-    // header.writeUInt16BE(1, 6); //possibly interfering with header qr field, hmm
-     header.writeUInt16BE(opcode << 11, 2); // Set Opcode in the response header
+     header.writeUInt16BE(1, 6); 
      const dnsResponse = Buffer.concat([header, questionBuffer, answer]);
 
      udpSocket.send(dnsResponse, rinfo.port, rinfo.address);
